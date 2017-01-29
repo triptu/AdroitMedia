@@ -15,12 +15,13 @@ import numpy as np
 import os, cv2, threading, sys, datetime
 from time import sleep
 from vlcclient import VLCClient
+from pyautogui import confirm
 
-print "\nCreator: Tushar Tripathi"
-print "Email:  tushutripathi@gmail.com\n"
+# print "\nCreator: Tushar Tripathi"
+# print "Email:  tushutripathi@gmail.com\n"
 
 hour = int(str(datetime.datetime.now().time())[:2])
-accuracy = 2 if (hour>17 or hour<8) else 7
+accuracy = 2 if (hour>17 or hour<8) else 5
 
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 # face_cascade2 = cv2.CascadeClassifier('haarcascade_frontalface_alt2.xml')

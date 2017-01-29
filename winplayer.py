@@ -37,3 +37,11 @@ def do_action(char):
     else:
         print("unknown instruction:", char)
 
+class MediaPlayer():
+
+    def play(self):
+        do_action("play")
+
+    def pause(self):
+        do_action("pause")
+
