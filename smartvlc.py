@@ -23,11 +23,11 @@ from pyautogui import confirm
 hour = int(str(datetime.datetime.now().time())[:2])
 accuracy = 2 if (hour>17 or hour<8) else 5
 
-face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
-# face_cascade2 = cv2.CascadeClassifier('haarcascade_frontalface_alt2.xml')
-eye_cascade3 = cv2.CascadeClassifier('haarcascade_lefteye_2splits.xml')
-# eye_cascade2 = cv2.CascadeClassifier('eyes.xml')
-eye_cascade2 = cv2.CascadeClassifier('eyeglasses.xml')
+face_cascade = cv2.CascadeClassifier('data\\haarcascade_frontalface_default.xml')
+# face_cascade2 = cv2.CascadeClassifier('data\\haarcascade_frontalface_alt2.xml')
+eye_cascade3 = cv2.CascadeClassifier('data\\haarcascade_lefteye_2splits.xml')
+# eye_cascade2 = cv2.CascadeClassifier('data\\eyes.xml')
+eye_cascade2 = cv2.CascadeClassifier('data\\eyeglasses.xml')
 
 vlc = VLCClient("::1")
 connected = False
