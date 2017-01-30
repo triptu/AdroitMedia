@@ -120,4 +120,3 @@ def glamshamScrape(url):
     lyrics = s.strip()
     return title + '\n' + lyrics
 
-print getLyrics("Thinking out loud")

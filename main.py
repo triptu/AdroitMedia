@@ -41,6 +41,7 @@ def getChoice(s='', Choice=''):                # FINAL check choice as input
             vconnected = False
             print "VLC is not running in Telnet Mode."
             print "Run VLC in Telnet mode and try again."
+            player.disconnect()
             getChoice("VLC not found. ")
             return False
     else:
