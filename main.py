@@ -1,5 +1,5 @@
 import numpy as np
-import os, cv2, threading, sys, datetime
+import cv2, threading, sys, datetime
 from time import sleep
 from vlcclient import VLCClient
 from winplayer import MediaPlayer
@@ -15,18 +15,19 @@ eye_cascade3 = cv2.CascadeClassifier('haarcascade_lefteye_2splits.xml')
 # eye_cascade2 = cv2.CascadeClassifier('eyes.xml')
 eye_cascade2 = cv2.CascadeClassifier('eyeglasses.xml')
 
-choic, player = None, None
+choice, player = None, None
 vconnected = False
 state = 1                           # 0 means paused. 1 means playing.
 times, times2= 0, 0                 # times- number of prev frames with no eyes. times2- with eye(s)
 
-def giveChoice(s=''):
+def getChoice(s='', Choice=''):                # FINAL check choice as input
     global player, vconnected, state, choice
     choice = confirm(text=s+'What do you want to use?', title='VLC or WMP?', buttons=['VLC', 'WMP', 'Exit'])
     if choice=="WMP":
         player = MediaPlayer()
         print "Connected to Windows Media Player. Start media."
         sleep(1)
+        return True
     elif choice == "VLC":
         player = VLCClient("::1")
         try:
@@ -35,11 +36,13 @@ def giveChoice(s=''):
             print "Connected to VLC. \n"
             temp = player.status().split()[-2]
             state = 1 if str(temp).lower()=='playing' else 0
+            return True
         except Exception as e:
             vconnected = False
             print "VLC is not running in Telnet Mode."
             print "Run VLC in Telnet mode and try again."
-            giveChoice("VLC not found. ")
+            getChoice("VLC not found. ")
+            return False
     else:
         sys.exit(0)
 
@@ -83,7 +86,8 @@ def check(val):                               # val = eyes detected
                 vconnected = False
 
 
-def start():
+def start(Choice):
+    getChoice(Choice)
     cap = None                                 # Object for video capture
     try:
         cap = cv2.VideoCapture(0)
@@ -98,10 +102,10 @@ def start():
             continue
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-        faces = face_cascade.detectMultiScale(gray, 1.1, 3, minSize=(100,100))
+        faces = face_cascade.detectMultiScale(gray, 1.1, accuracy, minSize=(100,100))
         checkVal = 0
         for (x,y,w,h) in faces:
-            cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0), accuracy)
+            cv2.rectangle(img,(x,y), (x+w,y+h), (255,0,0), accuracy)
             roi_gray = gray[y:y+h, x:x+w]
             roi_color = img[y:y+h, x:x+w]
             eyes = eye_cascade3.detectMultiScale(roi_gray, 1.05, minSize=(20,20))
@@ -116,11 +120,11 @@ def start():
         thread.daemon = True
         thread.start()
 
-        if vconnected == False:
+        if choice == "VLC" and vconnected == False:
             print "Unable to connect to VLC."
             print "Please check that VLC is running in telnet mode and try again."
             cv2.destroyAllWindows()
-            giveChoice("VLC not found. ")
+            getChoice("VLC not found. ")
 
         cv2.imshow('img',img)
 
@@ -129,6 +133,5 @@ def start():
 
 
 if __name__ == "__main__":
-    giveChoice()
     start()
     cv2.destroyAllWindows()
