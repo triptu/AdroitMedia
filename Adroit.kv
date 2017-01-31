@@ -1,0 +1,134 @@
+ScreenManager:
+    id: screen_manager
+    LandingScreen:
+        name: 'landing'
+        id: landing_screen
+        manager: screen_manager
+    LyricsScreen:
+        name: 'Lyrics'
+        id: lyrics_screen
+        manager: screen_manager
+    HelpScreen:
+        name: 'Help'
+
+<LandingScreen>:
+    search2: searchid
+    vid: switch_id1
+    wid: switch_id2
+    FloatLayout:
+        canvas.before:
+            Color:
+                rgba: 0.10, 0, 0.15, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Label:
+            size: self.texture_size
+            text: "Smart Pause"
+            font_size: 25
+            pos_hint:{'x':-0.3,'y':0.35}
+        ImageButton:
+            pos_hint: {'x': 0.3, 'y': .80}
+            size_hint:(.2,.1)
+            on_press: root.controlSmartPause(self.flag, root)
+
+        Switch:
+            id: switch_id1
+            on_active: root.Switch_on_VLC(self, self.active, root.wid)
+            pos_hint:{'x':0.1,'y':0.25}
+            size_hint: (0.1, 0.07)
+        Label:
+            text:'VLC'
+            pos_hint:{'x':-0.45,'y':-0.21}
+
+        Switch:
+            id: switch_id2
+            on_active: root.Switch_on_WMP(self, self.active, root.vid)
+            pos_hint:{'x':0.1,'y':0.15}
+            size_hint: (0.1, 0.07)
+        Label:
+            text:'WMP'
+            pos_hint:{'x':-0.45,'y':-0.32}
+
+        Switch:
+            id: switch_id
+            on_active: root.Switch_on_Telegram(self, self.active)
+            pos_hint:{'x':0.1,'y':0.05}
+            size_hint: (0.1, 0.07)
+        Label:
+            text:'Telegram'
+            pos_hint:{'x':-0.45,'y':-0.415}
+
+        Button:
+            text: "Download Subtitle"
+            on_press: root.downloadsub()
+            size_hint: (0.2, 0.1)
+            pos_hint:{'x':0.4,'y':0.3}
+
+        Search:
+            id: searchid
+            pos_hint: {'x':-0.24, 'y': -0.09}
+        Button:
+            text: 'Search Lyrics'
+            on_press:
+                root.manager.current = 'Lyrics'
+                root.manager.transition.direction = 'left'
+                root.manager.ids.lyrics_screen.loadLyrics(root.search2.user_input.text)
+            size_hint:(.25,.075)
+            pos_hint: {'x': .7, 'y': .6}
+        Button:
+            text: 'Help'
+            size_hint:(.25,.075)
+            pos_hint: {'x': .7, 'y': .1}
+            on_press:
+                root.manager.current = 'Help'
+                root.manager.transition.direction = 'left'
+
+<LyricsScreen>:
+    lyrics2: dispL
+    BoxLayout:
+        canvas.before:
+            Color:
+                rgba: 0.20, 0, 0, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        orientation: "vertical"
+        padding: 10
+        spacing: 10
+        Button:
+            text: 'Home Screen'
+            size_hint:(1, .10)
+            on_press:
+                root.manager.transition.direction = 'right'
+                root.manager.current = 'landing'
+        TextInput:
+            id: dispL
+            text: "Lyrics"
+            font_size: 20
+            hint_text: "Name of song."
+            keyboard_mode: 'managed'
+            readOnly: True
+
+<HelpScreen>:
+    BoxLayout:
+        canvas.before:
+            Color:
+                rgba: 0.20, 0, 0, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        orientation: "vertical"
+        padding: 10
+        spacing: 10
+        Button:
+            text: 'Home Screen'
+            size_hint:(1, .10)
+            on_press:
+                root.manager.transition.direction = 'right'
+                root.manager.current = 'landing'
+        TextInput:
+            font_size: 20
+            keyboard_mode: 'managed'
+            readOnly: True
+            text: root.help_text
