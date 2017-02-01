@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 import requests
 from bs4 import BeautifulSoup as bs
+from queue import Queue
 
 
 supported = ['azlyrics',
@@ -9,16 +10,27 @@ supported = ['azlyrics',
              'glamsham',
              'allthelyrics']
 
-def getLyrics(query):
-    query += " lyrics"
+def getLyrics(query, q):
+    query += " azlyrics"
     base  =  "https://www.google.co.in/search"
-    r     =  requests.get(base, params={'q':query})
+    try:
+        r     =  requests.get(base, params={'q':query})
+    except:
+        lyr = "Unable to connect to Intenet."
+        q.put(lyr)
+        return
     soup  =  bs(r.text, "html.parser")
     tags  =  soup.find_all('h3')
     url   =  ''
 
-    for i in range(5):
-        url= "https://www.google.co.in/" + tags[0].contents[0]['href']
+    for i in range(8):
+        try:
+            url= "https://www.google.co.in/" + tags[0].contents[0]['href']
+        except:
+            lyr = "Sorry, Lyrics not found."
+            q.put(lyr)
+            return
+
         for site in supported:
             if site in url:
                 break
@@ -27,26 +39,33 @@ def getLyrics(query):
             continue
         break
 
-    if url == '':         # No supported site
-        return False
+    try:
 
-    if 'azlyrics' in url:
-        return azScrape(url)
+        if url == '':         # No supported site
+            lyr = "Sorry, Lyrics not found."
 
-    elif 'metrolyrics' in url:
-        return metroScrape(url)
+        elif 'azlyrics' in url:
+            lyr = azScrape(url)
 
-    elif 'lyricsmint' in url:
-        return lyricsmintScrape(url)
+        elif 'metrolyrics' in url:
+            lyr = metroScrape(url)
 
-    elif 'allthelyrics' in url:
-        return allthelyricsScrape(url)
+        elif 'lyricsmint' in url:
+            lyr = lyricsmintScrape(url)
 
-    elif 'glamsham Lyrics' in url:
-        return glamshamScrape(url)
+        elif 'allthelyrics' in url:
+            lyr = allthelyricsScrape(url)
 
-    else:
-        return False
+        elif 'glamsham Lyrics' in url:
+            lyr = glamshamScrape(url)
+
+        else:
+            lyr = "Sorry, Lyrics not found."
+    except Exception as e:
+        lyr = "Sorry, Lyrics not found."
+        print "Error.", str(e)
+
+    q.put(lyr)
 
 
 def azScrape(url):
@@ -120,3 +139,6 @@ def glamshamScrape(url):
     lyrics = s.strip()
     return title + '\n' + lyrics
 
+if __name__ == '__main__':
+    q = Queue()
+    print getLyrics("Into you", q)

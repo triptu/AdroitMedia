@@ -3,7 +3,7 @@ import cv2, threading, sys, datetime
 from time import sleep
 from vlcclient import VLCClient
 from winplayer import MediaPlayer
-from pyautogui import confirm
+
 
 # For good detection in night time
 hour = int(str(datetime.datetime.now().time())[:2])
@@ -22,7 +22,6 @@ times, times2= 0, 0                 # times- number of prev frames with no eyes.
 
 def getChoice(s='', Choice=''):                # FINAL check choice as input
     global player, vconnected, state, choice
-    choice = confirm(text=s+'What do you want to use?', title='VLC or WMP?', buttons=['VLC', 'WMP', 'Exit'])
     if choice=="WMP":
         player = MediaPlayer()
         print "Connected to Windows Media Player. Start media."
@@ -41,6 +40,7 @@ def getChoice(s='', Choice=''):                # FINAL check choice as input
             vconnected = False
             print "VLC is not running in Telnet Mode."
             print "Run VLC in Telnet mode and try again."
+            print "Error in connecting to vlc. ", str(e)
             player.disconnect()
             getChoice("VLC not found. ")
             return False

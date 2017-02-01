@@ -95,13 +95,13 @@ while True:
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 
-    faces = face_cascade.detectMultiScale(gray, 1.1, 3, minSize=(100,100))
+    faces = face_cascade.detectMultiScale(gray, 1.1, accuracy, minSize=(100,100))
     if len(faces)==0:
         thread = threading.Thread(target=check, args=(0,))
         thread.daemon = True
         thread.start()
     for (x,y,w,h) in faces:
-        cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0), accuracy)
+        cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0))
         roi_gray = gray[y:y+h, x:x+w]
         roi_color = img[y:y+h, x:x+w]
         eyes = eye_cascade3.detectMultiScale(roi_gray, 1.05, minSize=(20,20))

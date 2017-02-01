@@ -1,6 +1,7 @@
 from xmlrpclib import ServerProxy
 import base64, zlib, struct
 import os
+from queue import Queue
 
 
 class Settings(object):
@@ -136,10 +137,10 @@ class Subtitle:
         self.opsub = OpenSubtitles()
         self.opsub.login()
 
-    def download(self):
+    def download(self, q):
         val =  self.opsub.download_subtitle(self.name, self.path)
         self.opsub.logout()
-        return val
+        q.put(val)
 
 
 if __name__ == '__main__':

@@ -1,29 +1,36 @@
 from vlcclient import VLCClient
 import re
 
-def getName(info):
-    fullPath = re.compile(r'.*file:///(?P<Path>.*?)\)')
+def getName():
+    vlc = VLCClient("::1")
+    try:
+        vlc.connect()
+    except:
+        return ""
+    info = vlc.status()
+    fullPath = re.compile(r'.*file:///(?P<Path>.*?) \).\n\( audio')
+    vlc.disconnect()
     if fullPath.match(info):
         Path = fullPath.match(info).group('Path')
         return Path.split('/')[-1]
     else:
-        return False
+        return ""
 
 
-def getPath(info):
-    fullPath = re.compile(r'.*file:///(?P<Path>.*?)\.')
+def getNamePath():
+    vlc = VLCClient("::1")
+    try:
+        vlc.connect()
+    except:
+        return ""
+    info = vlc.status()
+    fullPath = re.compile(r'.*file:///(?P<Path>.*?) \).\n\( audio')
+    vlc.disconnect()
     if fullPath.match(info):
         Path = fullPath.match(info).group('Path')
         path = re.match(r'.*/', Path)
-        return path.group(0)
+        name = Path.split('/')[-1]
+        return name.strip(), path.group(0)
     else:
-        return False
+        return '', ''
 
-
-
-if __name__ == '__main__':
-    vlc = VLCClient("::1")
-    vlc.connect()
-    print "Playing - ", getName(vlc.status())
-    print "Path - ", getPath(vlc.status())
-    vlc.disconnect()

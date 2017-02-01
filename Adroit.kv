@@ -15,22 +15,27 @@ ScreenManager:
     search2: searchid
     vid: switch_id1
     wid: switch_id2
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source: 'data/adroit2.png'
     FloatLayout:
-        canvas.before:
-            Color:
-                rgba: 0.10, 0, 0.15, 1
-            Rectangle:
-                pos: self.pos
-                size: self.size
+
         Label:
             size: self.texture_size
             text: "Smart Pause"
             font_size: 25
-            pos_hint:{'x':-0.3,'y':0.35}
+            pos_hint:{'x':  .015,'y':0.2}
         ImageButton:
-            pos_hint: {'x': 0.3, 'y': .80}
+            pos_hint: {'x': 0.4, 'y': .75}
             size_hint:(.2,.1)
             on_press: root.controlSmartPause(self.flag, root)
+
+        Label:
+            text:'Controls'
+            pos_hint:{'x':-0.4,'y':-0.1}
+            font_size: 25
 
         Switch:
             id: switch_id1
@@ -62,20 +67,29 @@ ScreenManager:
         Button:
             text: "Download Subtitle"
             on_press: root.downloadsub()
-            size_hint: (0.2, 0.1)
-            pos_hint:{'x':0.4,'y':0.3}
+            size_hint: (0.25, 0.075)
+            pos_hint:{'x':0.37,'y':0.1}
 
         Search:
             id: searchid
             pos_hint: {'x':-0.24, 'y': -0.09}
+
+        Button:
+            text: 'Load Current'
+            on_press:
+                root.search2.update()
+            size_hint:(0.125,0.075)
+            pos_hint: {'x': .65, 'y': .5}
+
+
         Button:
             text: 'Search Lyrics'
             on_press:
                 root.manager.current = 'Lyrics'
                 root.manager.transition.direction = 'left'
                 root.manager.ids.lyrics_screen.loadLyrics(root.search2.user_input.text)
-            size_hint:(.25,.075)
-            pos_hint: {'x': .7, 'y': .6}
+            size_hint:(.125,.075)
+            pos_hint: {'x': .79, 'y': .5}
         Button:
             text: 'Help'
             size_hint:(.25,.075)
@@ -84,15 +98,10 @@ ScreenManager:
                 root.manager.current = 'Help'
                 root.manager.transition.direction = 'left'
 
+
 <LyricsScreen>:
     lyrics2: dispL
     BoxLayout:
-        canvas.before:
-            Color:
-                rgba: 0.20, 0, 0, 1
-            Rectangle:
-                pos: self.pos
-                size: self.size
         orientation: "vertical"
         padding: 10
         spacing: 10
@@ -114,13 +123,14 @@ ScreenManager:
     BoxLayout:
         canvas.before:
             Color:
-                rgba: 0.20, 0, 0, 1
+                rgba: 0.0, 0, 0, 1
+                ###
             Rectangle:
                 pos: self.pos
                 size: self.size
         orientation: "vertical"
         padding: 10
-        spacing: 10
+        spacing: 5
         Button:
             text: 'Home Screen'
             size_hint:(1, .10)
@@ -132,3 +142,4 @@ ScreenManager:
             keyboard_mode: 'managed'
             readOnly: True
             text: root.help_text
+

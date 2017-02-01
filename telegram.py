@@ -8,12 +8,18 @@ class NetworkError(Exception):
 class VLCConnectionError(Exception):
     pass
 
+token = 'bot238441806:AAHC5l1Bm3kvR38Ap-WsPYBmq0i7EaMXvHA'
+with open('data/token.txt') as f:
+    for line in f:
+        token = line
+        break
+
 class Telegram():
 
     def __init__(self):
         self.running = True
         self.vlc = VLCClient("::1")
-        self.base = "https://api.telegram.org/bot238441806:AAHC5l1Bm3kvR38Ap-WsPYBmq0i7EaMXvHA/"
+        self.base = "https://api.telegram.org/%s/" %token
         try:
             self.vlc.connect()
         except:
