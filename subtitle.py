@@ -131,15 +131,24 @@ class OpenSubtitles(object):
 
 class Subtitle:
 
-    def __init__(self, name, path):
+    def __init__(self, name, path, q):
         self.path = path
         self.name = name
         self.opsub = OpenSubtitles()
-        self.opsub.login()
+        try:
+            self.opsub.login()
+            q.put(('True',))
+        except:
+            print "Not connected to Internet."
+            q.put(('False', "Not connected to Internet."))
 
     def download(self, q):
-        val =  self.opsub.download_subtitle(self.name, self.path)
-        self.opsub.logout()
+        try:
+            val =  self.opsub.download_subtitle(self.name, self.path)
+            self.opsub.logout()
+        except:
+            print "Unable to connect to Internet."
+            val = False
         q.put(val)
 
 

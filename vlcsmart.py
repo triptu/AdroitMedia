@@ -5,6 +5,8 @@ from vlcclient import VLCClient
 from winplayer import MediaPlayer
 from threading import Thread
 
+class smartPauseStopped(Exception):
+    pass
 
 class smartVlc():
 
@@ -22,6 +24,7 @@ class smartVlc():
         self.vconnected = False
         self.state = 1                           # 0 means paused. 1 means playing.
         self.times, self.times2= 0, 0                 # times- number of prev frames with no eyes. times2- with eye(s)
+        self.gotError = False
 
     def connect(self, choice):
         self.choice = choice
@@ -134,15 +137,16 @@ class smartVlc():
             thread.daemon = True
             thread.start()
 
-            if self.choice == "vlc" and self.vconnected == False:
+            if self.choice == "vlc" and self.vconnected == False and self.running == True:
                 print "Unable to connect to VLC."
                 print "Please check that VLC is running in telnet mode."
                 self.stop()
+                self.gotError = True
             # cv2.imshow('img',img)
 
-            if cv2.waitKey(1) & 0xFF == ord('q'): # Press q to exit.
-                self.stop()
-                break
+            # if cv2.waitKey(1) & 0xFF == ord('q'): # Press q to exit.
+            #     self.stop()
+            #     break
 
     def setChoice(self, choice):
         if choice==self.choice:
@@ -163,8 +167,11 @@ class smartVlc():
             print "Media Player disconnected."
             self.player = None
         if self.cap:
+            print "camera off"
             self.cap.release()
             cv2.destroyAllWindows()
+        # if self.gotError:
+        #     raise smartPauseStopped
         return True
 
 if __name__ == '__main__':

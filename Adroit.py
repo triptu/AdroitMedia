@@ -5,7 +5,7 @@ from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.image import Image
 from kivy.uix.screenmanager import Screen
 from kivy.uix.textinput import TextInput
-from vlcsmart import smartVlc
+from vlcsmart import smartVlc, smartPauseStopped
 from threading import Thread
 from BasicInfo import getName, getNamePath
 from lyrics import getLyrics
@@ -84,23 +84,42 @@ class LandingScreen(Screen):
             self.smartPause = False
             print "Smart Pause is off."
 
+    def telegramHelper(self, instance):
+        try:
+            self.tele.start()
+        except VLCConnectionError:
+            print "Telegram Unable to connect to VLC"
+            sleep(0.01)
+            instance.active = False
+        except NetworkError:
+            print "Telegram Unable to connect to Internet."
+            sleep(0.01)
+            instance.active = False
+        except Exception as e:
+            print "Telegram Error", str(e)
+            instance.active = False
+
     def Switch_on_Telegram(self, instance, value):
         if value is True:
-            print("Switch On Telegram")
-            self.tele = Telegram()
-            telethread = Thread(target=self.tele.start)
-            telethread.daemon = True
+            print("Trying to switch on Telegram")
             try:
-                telethread.start()
+                self.tele = Telegram()
                 self.telegram = True
-            except Exception as e:
-                print "Error", str(e)
+                print "Switched on."
+                telethread = Thread(target=self.telegramHelper, args = (instance,))
+                telethread.daemon = True
+                telethread.start()
+            except VLCConnectionError:
+                print "Unable to connect to VLC."
+                print "Ensure it is running in telnet mode."
                 instance.active = False
+
         else:
             if self.telegram:
                 self.tele.stop()
             self.telegram = False
             print("Switch Off Telegram")
+
 
     def Switch_on_VLC(self, instance, value, instance2):
         if self.smartPause and value is True:
@@ -108,10 +127,14 @@ class LandingScreen(Screen):
             self.curr_player = 'vlc'
             instance2.active = False
             sleep(0.01)
-            self.player.connect('vlc')
-            vthread = Thread(target=self.player.start)
-            vthread.daemon = True
-            vthread.start()
+            val = self.player.connect('vlc')
+            if not val:
+                self.player.stop()
+                instance.active = False
+            else:
+                vthread = Thread(target=self.player.start)
+                vthread.daemon = True
+                vthread.start()
         elif self.smartPause and value==False:
             print("Switch Off VLC")
             if self.curr_player == 'vlc':
@@ -147,7 +170,13 @@ class LandingScreen(Screen):
                 self.curr_player = None
 
 
-    def downloadsubhelper(self, new):
+    def downloadsubhelper(self, name, path):
+        q4 = Queue()
+        new = Subtitle(name, path, q4)
+        subReturn = q4.get()
+        if not subReturn[0]:
+            # Unable to connect to internet
+            return
         try:
             q2 = Queue()
             sthread = Thread(target = new.download, args=(q2,))
@@ -180,8 +209,7 @@ class LandingScreen(Screen):
         if name!=self.subname:
             self.sub = False
         self.subname = name
-        new = Subtitle(name, path)
-        subthread = Thread(target = self.downloadsubhelper, args = (new,))
+        subthread = Thread(target = self.downloadsubhelper, args = (name, path))
         subthread.daemon = True
         try:
             subthread.start()
@@ -205,7 +233,7 @@ class LyricsScreen(Screen):
     def loadLyrics(self, song):
         if self.song==song and self.lyrics!='Sorry, Lyrics not found.':
             return
-        elif (self.song==song and len(self.lyrics)<25) or self.song!=song:
+        else:
             self.song = song
             self.lyrics2.text = "Loading Lyrics for " + song + " ..."
             print "Loading Lyrics for " + song + " ..."

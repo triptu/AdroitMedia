@@ -38,6 +38,7 @@ def getLyrics(query, q):
             url = ''
             continue
         break
+    # print url
 
     try:
 
@@ -76,7 +77,7 @@ def azScrape(url):
     t = soup.find_all('div', {'class':'div-share'})[1].findChild()
     title = t.contents[0].strip('').replace('"','').replace('lyrics','')
     s = soup.find_all('div')
-    lyrics = s[22].text.strip()
+    lyrics = s[21].text.strip()
     s = "\n%s\n\n" %(title)
     s += lyrics
     return s
@@ -141,4 +142,5 @@ def glamshamScrape(url):
 
 if __name__ == '__main__':
     q = Queue()
-    print getLyrics("Into you", q)
+    getLyrics("Into you", q)
+    print q.get()
