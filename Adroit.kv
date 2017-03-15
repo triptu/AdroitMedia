@@ -1,3 +1,8 @@
+#:import Toolbar kivymd.toolbar.Toolbar
+#:import MDSwitch kivymd.selectioncontrols.MDSwitch
+#:import Toolbar kivymd.toolbar.Toolbar
+#:import NavigationDrawer kivymd.navigationdrawer.NavigationDrawer
+
 ScreenManager:
     id: screen_manager
     LandingScreen:
@@ -11,91 +16,185 @@ ScreenManager:
     HelpScreen:
         name: 'Help'
 
+<CustLabel@Label>
+    font_name: "data/fonts/Roboto-Medium.ttf"
+    color: 0, 0, 0, 1
+
+<FlatTextInput>:
+
+    canvas.before:
+
+        # Background
+        Color:
+            rgba: self.background_color
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+        #Cursor
+        Color:
+            rgba: ( [0.4023,0.2265,0.7148,1] if self.focus else [ 0, 0, 0, 0 ] )
+        Rectangle:
+            pos: [int(x) for x in self.cursor_pos]
+            size: sp(2), -self.line_height
+
+        #Underline
+        Color:
+            rgba: [0.4023,0.2265,0.7148,1] if self.focus else [0.4023,0.2265,0.7148, .4 ]
+        Rectangle:
+            size: ( self.size[0]-3, 1 )
+            pos: self.pos[0], self.cursor_pos[1] - self.line_height - 3
+
+        #Set text color
+        Color:
+            rgba: 0,0,0,1
+
+<FlatTextInput2>:
+
+    canvas.before:
+
+        # Background
+        Color:
+            rgba: self.background_color
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+        #Cursor
+        Color:
+            rgba: ( [0.4023,0.2265,0.7148,1] if self.focus else [ 0, 0, 0, 0 ] )
+        Rectangle:
+            pos: [int(x) for x in self.cursor_pos]
+            size: sp(2), -self.line_height
+
+        #Underline
+        Color:
+            rgba: [ 0, 0, 0, 0 ]
+        Rectangle:
+            size: ( self.size[0]-3, 1 )
+            pos: self.pos[0], self.cursor_pos[1] - self.line_height - 3
+
+        #Set text color
+        Color:
+            rgba: 0,0,0,1
+
 <LandingScreen>:
     search2: searchid
     vid: switch_id1
+    vlclabelid: vlclabel
     wid: switch_id2
-    canvas.before:
-        Color:
-            rgba: 0.2, 0.1, 0.4, 1
-        Rectangle:
-            pos: self.pos
-            size: self.size
-            source: 'data/adroit2.png'
+    wmplabelid: wmplabel
+    yid: switch_id3
+    ytlabel: ytubelabel
     FloatLayout:
+        canvas.before:
+            Color:
+                rgba: .97, .97, .97, 0.99
+            Rectangle:
+                pos: self.pos
+                size: self.size
+                #source: 'data/adroit2.png'
 
-        Label:
+        Toolbar:
+            title: 'ADROIT'
+            md_bg_color: app.theme_cls.primary_color
+            background_palette: 'Primary'
+            background_hue: '500'
+            pos_hint: {'x':0, 'y':0.91}
+            size_hint_y: 0.09
+
+        CustLabel:
             size: self.texture_size
-            text: "Smart Pause"
-            font_size: 25
-            pos_hint:{'x':  .015,'y':0.2}
+            text: "SMART PAUSE"
+            font_size: 15
+            pos_hint:{'x':  0,'y':0.19}
         ImageButton:
-            pos_hint: {'x': 0.4, 'y': .75}
-            size_hint:(.2,.1)
+            pos_hint: {'x': 0.4, 'y': .73}
+            size_hint:(.2,.12)
             on_press: root.controlSmartPause(self.flag, root)
+        ImageButton2:
+            pos_hint: {'x': 0.65, 'y': .2}
+            size_hint:(.2,.12)
+            #on_press: root.controlSmartPause(self.flag, root)
 
-        Label:
-            text:'Controls'
-            pos_hint:{'x':-0.4,'y':-0.1}
-            font_size: 25
+#        CustLabel:
+#            text:'CONTROLS'
+#            pos_hint:{'x':-0.35,'y':-0.08}
+#           font_size: 22
 
-        Switch:
+        MDSwitch:
             id: switch_id1
-            on_active: root.Switch_on_VLC(self, self.active, root.wid)
-            pos_hint:{'x':0.1,'y':0.25}
-            size_hint: (0.1, 0.07)
-        Label:
+            on_active: root.Switch_on_VLC(self, self.active, root.wid, root.yid)
+            pos_hint:{'x':0.2,'y':0.55}
+            size_hint: (0.05, 0.075)
+        CustLabel:
+            id:vlclabel
             text:'VLC'
-            pos_hint:{'x':-0.45,'y':-0.21}
+            color: 0, 0, 0, 0.6
+            pos_hint:{'x':-0.275,'y':0.038}
 
-        Switch:
+        MDSwitch:
             id: switch_id2
-            on_active: root.Switch_on_WMP(self, self.active, root.vid)
-            pos_hint:{'x':0.1,'y':0.15}
-            size_hint: (0.1, 0.07)
-        Label:
+            on_active: root.Switch_on_WMP(self, self.active, root.vid, root.yid)
+            pos_hint:{'x':0.4,'y':0.55}
+            size_hint: (0.05, 0.075)
+        CustLabel:
+            id: wmplabel
             text:'WMP'
-            pos_hint:{'x':-0.45,'y':-0.32}
+            color: 0, 0, 0, 0.6
+            pos_hint:{'x':-0.075,'y':0.038}
 
-        Switch:
+        MDSwitch:
+            id: switch_id3
+            on_active: root.Switch_on_YouTube(self, self.active, root.wid, root.vid)
+            pos_hint:{'x':0.6,'y':0.55}
+            size_hint: (0.05, 0.075)
+        CustLabel:
+            id: ytubelabel
+            text:'YouTube'
+            color: 0, 0, 0, 0.6
+            pos_hint:{'x':0.125,'y':0.038}
+
+        MDSwitch:
             id: switch_id
             on_active: root.Switch_on_Telegram(self, self.active)
-            pos_hint:{'x':0.1,'y':0.05}
-            size_hint: (0.1, 0.07)
-        Label:
-            text:'Telegram'
-            pos_hint:{'x':-0.45,'y':-0.415}
+            pos_hint:{'x':0.8,'y':0.55}
+            size_hint: (0.05, 0.075)
+        CustLabel:
+            text:'TELEGRAM'
+            pos_hint:{'x':0.325,'y':0.038}
 
-        Button:
-            text: "Download Subtitle"
+        MDRaisedButton:
+            text: "SUBTITLE"
             on_press: root.downloadsub()
-            size_hint: (0.25, 0.075)
-            pos_hint:{'x':0.37,'y':0.1}
+            size_hint: (0.321, 0.075)
+            pos_hint:{'x':0.12,'y':0.1}
 
         Search:
             id: searchid
-            pos_hint: {'x':-0.24, 'y': -0.09}
+            pos_hint: {'x':-0.15, 'y': -0.25}
+            size_hint: (0.7, 1)
 
-        Button:
-            text: 'Load Current'
+        MDRaisedButton:
+            text: 'CURRENT'
             on_press:
                 root.search2.update()
             size_hint:(0.125,0.075)
-            pos_hint: {'x': .65, 'y': .5}
+            pos_hint: {'x': .12, 'y': .22}
 
 
-        Button:
-            text: 'Search Lyrics'
+        MDRaisedButton:
+            text: 'LYRICS'
             on_press:
                 root.manager.current = 'Lyrics'
                 root.manager.transition.direction = 'left'
                 root.manager.ids.lyrics_screen.loadLyrics(root.search2.user_input.text)
             size_hint:(.125,.075)
-            pos_hint: {'x': .79, 'y': .5}
-        Button:
-            text: 'Help'
-            size_hint:(.25,.075)
-            pos_hint: {'x': .7, 'y': .1}
+            pos_hint: {'x': .32, 'y': .22}
+        MDRaisedButton:
+            text: 'help'
+            size_hint:(.08,.08)
+            pos_hint: {'x': .9, 'y': .8}
             on_press:
                 root.manager.current = 'Help'
                 root.manager.transition.direction = 'left'
@@ -104,19 +203,26 @@ ScreenManager:
 <LyricsScreen>:
     lyrics2: dispL
     BoxLayout:
+        canvas.before:
+            Color:
+                rgba: .97, .97, .97, 0.99
+            Rectangle:
+                pos: self.pos
+                size: self.size
         orientation: "vertical"
-        padding: 10
-        spacing: 10
-        Button:
+        padding: 1
+        spacing: 5
+        MDRaisedButton:
             text: 'Home Screen'
             size_hint:(1, .10)
             on_press:
                 root.manager.transition.direction = 'right'
                 root.manager.current = 'landing'
-        TextInput:
+        FlatTextInput2:
             id: dispL
             text: "Lyrics"
             font_size: 20
+            font_name: "data/fonts/Roboto-Regular.ttf"
             hint_text: "Name of song."
             keyboard_mode: 'managed'
             readOnly: True
@@ -125,23 +231,22 @@ ScreenManager:
     BoxLayout:
         canvas.before:
             Color:
-                rgba: 0.0, 0, 0, 1
-                ###
+                rgba: .97, .97, .97, 1
             Rectangle:
                 pos: self.pos
                 size: self.size
         orientation: "vertical"
-        padding: 10
-        spacing: 5
-        Button:
+        padding: 1
+        spacing: 8
+        MDRaisedButton:
             text: 'Home Screen'
             size_hint:(1, .10)
             on_press:
                 root.manager.transition.direction = 'right'
                 root.manager.current = 'landing'
-        TextInput:
+        FlatTextInput2:
             font_size: 20
             keyboard_mode: 'managed'
             readOnly: True
             text: root.help_text
-
+            cursor: (0,0)

@@ -1,5 +1,6 @@
 from vlcclient import VLCClient
 import re
+from threading import Thread
 
 def getName():
     vlc = VLCClient("::1")
@@ -22,7 +23,7 @@ def getNamePath():
     try:
         vlc.connect()
     except:
-        return ""
+        return '', ''
     info = vlc.status()
     fullPath = re.compile(r'.*file:///(?P<Path>.*?) \).\n\( audio')
     vlc.disconnect()
@@ -34,3 +35,28 @@ def getNamePath():
     else:
         return '', ''
 
+
+def runChecker(vlc):
+    try:
+        vlc.connect()
+    except:
+        return False
+
+
+def getStatus():
+    vlc = VLCClient("::1")
+    sThread = Thread(target=runChecker, args=(vlc,))
+    sThread.daemon = True
+    sThread.start()
+    sThread.join(0.25)
+    if sThread.isAlive:
+        return False
+    try:
+        vlc.connect()
+    except:
+        return False
+    temp = vlc.status().split()[-2]
+    if str(temp).lower() == 'playing':
+        return True
+    else:
+        return False

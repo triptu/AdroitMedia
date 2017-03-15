@@ -182,6 +182,26 @@ class VLCClient(object):
         """Clear all items in playlist"""
         return self._send_command("clear")
 
+    def playlist(self):
+        '''Gets the item in current playlist.'''
+        return self._send_command('playlist')
+
+    def is_playing(self):
+        return self._send_command('is_playing')
+
+    def get_title(self):
+        return self._send_command('get_title')
+
+    def get_length(self):
+        return self._send_command('get_length')
+
+    def get_time(self):
+        ''' Seconds elapsed'''
+        return self._send_command('get_time')
+
+    def snapshot(self):
+        return self._send_command('snapshot')
+
     #
     # Volume
     #

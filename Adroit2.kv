@@ -1,0 +1,231 @@
+
+ScreenManager:
+    id: screen_manager
+    LandingScreen:
+        name: 'landing'
+        id: landing_screen
+        manager: screen_manager
+    LyricsScreen:
+        name: 'Lyrics'
+        id: lyrics_screen
+        manager: screen_manager
+    HelpScreen:
+        name: 'Help'
+
+<CustLabel@Label>
+    font_name: "data/fonts/Roboto-Medium.ttf"
+    color: 0, 0, 0, 1
+
+<FlatTextInput2>:
+
+    canvas.before:
+
+        # Background
+        Color:
+            rgba: self.background_color
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+        #Cursor
+        Color:
+            rgba: ( [0.4023,0.2265,0.7148,1] if self.focus else [ 0, 0, 0, 0 ] )
+        Rectangle:
+            pos: [int(x) for x in self.cursor_pos]
+            size: sp(2), -self.line_height
+
+        #Underline
+        Color:
+            rgba: [ 0, 0, 0, 0 ]
+        Rectangle:
+            size: ( self.size[0]-3, 1 )
+            pos: self.pos[0], self.cursor_pos[1] - self.line_height - 3
+
+        #Set text color
+        Color:
+            rgba: 0,0,0,1
+
+<LandingScreen>:
+    search2: searchid
+    vid: switch_id1
+    vlclabelid: vlclabel
+    wid: switch_id2
+    wmplabelid: wmplabel
+    yid: switch_id3
+    ytlabel: ytubelabel
+    FloatLayout:
+        canvas.before:
+            Color:
+                rgba: .97, .97, .97, 0.99
+            Rectangle:
+                pos: self.pos
+                size: self.size
+                #source: 'data/adroit2.png'
+
+        Toolbar:
+            title: 'ADROIT'
+            md_bg_color: app.theme_cls.primary_color
+            background_palette: 'Primary'
+            background_hue: '500'
+            pos_hint: {'x':0, 'y':0.91}
+            size_hint_y: 0.09
+
+        CustLabel:
+            size: self.texture_size
+            text: "Smart Pause"
+            font_size: 25
+            pos_hint:{'x':  0,'y':0.19}
+        ImageButton:
+            pos_hint: {'x': 0.4, 'y': .73}
+            size_hint:(.2,.12)
+            on_press: root.controlSmartPause(self.flag, root)
+
+        CustLabel:
+            text:'CONTROLS'
+            pos_hint:{'x':-0.35,'y':-0.08}
+            font_size: 22
+
+        MDSwitch:
+            id: switch_id1
+            on_active: root.Switch_on_VLC(self, self.active, root.wid, root.yid)
+            pos_hint:{'x':0.18,'y':0.31}
+            size_hint: (0.05, 0.075)
+        CustLabel:
+            id: vlclabel
+            text:'VLC'
+            color: 0, 0, 0, 0.6
+            pos_hint:{'x':-0.41,'y':-0.15}
+
+        MDSwitch:
+            id: switch_id2
+            on_active: root.Switch_on_WMP(self, self.active, root.vid, root.yid)
+            pos_hint:{'x':0.18,'y':0.23}
+            size_hint: (0.05, 0.075)
+        CustLabel:
+            id: wmplabel
+            text:'WMP'
+            color: 0, 0, 0, 0.6
+            pos_hint:{'x':-0.41,'y':-0.23}
+
+        MDSwitch:
+            id: switch_id3
+            on_active: root.Switch_on_YouTube(self, self.active, root.wid, root.vid)
+            pos_hint:{'x':0.18,'y':0.14}
+            size_hint: (0.05, 0.075)
+        CustLabel:
+            id: ytubelabel
+            text:'YouTube'
+            color: 0, 0, 0, 0.6
+            pos_hint:{'x':-0.41,'y':-0.32}
+
+        MDSwitch:
+            id: switch_id
+            on_active: root.Switch_on_Telegram(self, self.active)
+            pos_hint:{'x':0.18,'y':0.05}
+            size_hint: (0.05, 0.075)
+        CustLabel:
+            text:'TELEGRAM'
+            pos_hint:{'x':-0.41,'y':-0.415}
+
+        MDSwitch:
+            id: switch_id
+            on_active: root.Switch_on_Prediction(self, self.active)
+            pos_hint:{'x':0.68,'y':0.28}
+            size_hint: (0.05, 0.09)
+        CustLabel:
+            text:'Playlist Prediction'
+            pos_hint:{'x':0.040,'y':-0.175}
+            font_size: 22
+
+        Search:
+            id: searchid
+
+        MDTextField:
+            hint_text: "You can put any widgets here"
+            pos_hint:{'x':0.2, 'y': 0.2}
+
+        MDRaisedButton:
+            text: 'CURRENT'
+            on_press:
+                root.search2.update()
+            size_hint:(0.125,0.075)
+            pos_hint: {'x': .65, 'y': .5}
+
+
+        MDRaisedButton:
+            text: 'LYRICS'
+            on_press:
+                root.manager.current = 'Lyrics'
+                root.manager.transition.direction = 'left'
+                root.manager.ids.lyrics_screen.loadLyrics(root.search2.user_input.text)
+            size_hint:(.125,.075)
+            pos_hint: {'x': .79, 'y': .5}
+
+        MDRaisedButton:
+            text: "SUBTITLE"
+            on_press: root.downloadsub()
+            size_hint: (0.25, 0.09)
+            pos_hint:{'x':0.37,'y':0.075}
+
+        MDRaisedButton:
+            text: 'HELP'
+            size_hint:(.25,.09)
+            pos_hint: {'x': .7, 'y': .075}
+            on_press:
+                root.manager.current = 'Help'
+                root.manager.transition.direction = 'left'
+
+
+<LyricsScreen>:
+    lyrics2: dispL
+    BoxLayout:
+        canvas.before:
+            Color:
+                rgba: .97, .97, .97, 0.99
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        orientation: "vertical"
+        padding: 1
+        spacing: 5
+        MDRaisedButton:
+            text: 'Home Screen'
+            size_hint:(1, .10)
+            on_press:
+                root.manager.transition.direction = 'right'
+                root.manager.current = 'landing'
+        FlatTextInput2:
+            id: dispL
+            text: "Lyrics"
+            font_size: 20
+            font_name: "data/fonts/Roboto-Regular.ttf"
+            hint_text: "Name of song."
+            keyboard_mode: 'managed'
+            readOnly: True
+
+<HelpScreen>:
+    helpid: helptextid
+    BoxLayout:
+        canvas.before:
+            Color:
+                rgba: .97, .97, .97, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        orientation: "vertical"
+        padding: 1
+        spacing: 8
+        MDRaisedButton:
+            text: 'Home Screen'
+            size_hint:(1, .10)
+            on_press:
+                root.manager.transition.direction = 'right'
+                root.manager.current = 'landing'
+        FlatTextInput2:
+            id: helptextid
+            font_size: 20
+            font_name: "data/fonts/Roboto-Regular.ttf"
+            keyboard_mode: 'managed'
+            readOnly: True
+            text: root.help_text
+            cursor: (0,0)

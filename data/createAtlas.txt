@@ -1,0 +1,1 @@
+python -m kivy.atlas smartPauseRed 200 on.png off.png onhover.png offhover.png

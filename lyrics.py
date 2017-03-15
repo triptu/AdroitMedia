@@ -2,16 +2,19 @@ from __future__ import unicode_literals
 import requests
 from bs4 import BeautifulSoup as bs
 from queue import Queue
+import sys
 
+reload(sys)
+sys.setdefaultencoding('utf8')
 
-supported = ['azlyrics',
-             'metrolyrics',
+supported = ['metrolyrics',
              'lyricsmint',
              'glamsham',
              'allthelyrics']
 
 def getLyrics(query, q):
-    query += " azlyrics"
+    query += " metrolyrics"
+    # headers = { 'User-Agent': 'Mozilla/5.0 (Windows NT 6.0; WOW64; rv:24.0) Gecko/20100101 Firefox/24.0' }
     base  =  "https://www.google.co.in/search"
     try:
         r     =  requests.get(base, params={'q':query})
@@ -45,8 +48,8 @@ def getLyrics(query, q):
         if url == '':         # No supported site
             lyr = "Sorry, Lyrics not found."
 
-        elif 'azlyrics' in url:
-            lyr = azScrape(url)
+        # elif 'azlyrics' in url:
+        #     lyr = azScrape(url)
 
         elif 'metrolyrics' in url:
             lyr = metroScrape(url)
