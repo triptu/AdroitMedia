@@ -130,10 +130,11 @@ class Search(FloatLayout):
         self.flag = 0
 
         # user_input = TextInput()
-        self.user_input = MDTextField(multiline=False, font_size=25)
+        self.user_input = MDTextField(multiline=False, font_size=23)
+        self.user_input.hint_text = 'Song Name'
         self.add_widget(self.user_input)
-        self.user_input.size_hint = (0.5, 0.076)
-        self.user_input.pos_hint = {'x': .10, 'y': .49}
+        self.user_input.size_hint = (0.55, 0.115)
+        self.user_input.pos_hint = {'x': .07, 'y': .47}
         name = getName()
         print "Current ", name
         if name != '':

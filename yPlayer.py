@@ -11,3 +11,8 @@ class ytubePlayer():
         print "Youtube pause"
         requests.get('http://127.0.0.1:5000/setpause')
 
+    def status(status):
+        return True
+
+    def disconnect(self):
+        return True

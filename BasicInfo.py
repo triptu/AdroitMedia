@@ -1,5 +1,6 @@
 from vlcclient import VLCClient
 import re
+from queue import Queue
 from threading import Thread
 
 def getName():
@@ -36,23 +37,25 @@ def getNamePath():
         return '', ''
 
 
-def runChecker(vlc):
+def runChecker(vlc, q):
     try:
         vlc.connect()
     except:
-        return False
+        q.put(False)
+    q.put(True)
 
 
 def getStatus():
     vlc = VLCClient("::1")
-    sThread = Thread(target=runChecker, args=(vlc,))
+    q = Queue()
+    sThread = Thread(target=runChecker, args=(vlc, q))
     sThread.daemon = True
     sThread.start()
-    sThread.join(0.25)
-    if sThread.isAlive:
-        return False
+    sThread.join(0.10)
     try:
-        vlc.connect()
+        ret = q.get(block=False)
+        if not ret:
+            raise
     except:
         return False
     temp = vlc.status().split()[-2]
@@ -60,3 +63,4 @@ def getStatus():
         return True
     else:
         return False
+

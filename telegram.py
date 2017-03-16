@@ -4,6 +4,7 @@ from lyrics import getLyrics
 from threading import Thread
 from BasicInfo import getName, getStatus
 from queue import Queue
+from yPlayer import ytubePlayer
 
 
 class NetworkError(Exception):
@@ -27,11 +28,17 @@ class Telegram():
     def __init__(self):
         self.running = True
         self.vlc = VLCClient("::1")
+        self.media = 'vlc'
         self.base = "https://api.telegram.org/bot%s/" % token
         try:
             self.vlc.connect()
+            print getStatus()
+            if not getStatus():
+                print "fndf"
+                raise
         except:
-            raise VLCConnectionError
+            self.vlc = ytubePlayer()
+            self.media = 'ytube'
 
     def get(self, command, payload=None):
         try:
@@ -43,10 +50,12 @@ class Telegram():
     def start(self):
         updates = self.get('getupdates')
         while self.running:
-            try:
-                self.vlc.status()
-            except:
-                raise VLCConnectionError
+            if self.media == 'vlc':
+                try:
+                    self.vlc.status()
+                except:
+                    print "ss"
+                    raise VLCConnectionError
             if updates['result'] != []:
                 offset = updates['result'][-1]['update_id']
                 payload = {"offset": offset + 1}
@@ -61,8 +70,12 @@ class Telegram():
                     # Replying
                     reply = self.action(message)
                     if reply:
-                        payload = {'text': reply, 'chat_id': str(user_id)}
+                        keyboardLayout = [["Play", "Pause"], ["Lyrics", "Next"]]
+                        reply_markup = {"keyboard": keyboardLayout, "resize_keyboard": False, "one_time_keyboard": False}
+                        reply_markup = json.dumps(reply_markup)
+                        payload = {'text': reply, 'chat_id': str(user_id), "reply_markup": reply_markup}
                         send_msg = self.get('sendmessage', payload)
+                        # print send_msg
                         if reply == send_msg['result']['text']:
                             pass    # Success
 
@@ -73,23 +86,23 @@ class Telegram():
                 self.vlc.play()
             elif msg == 'pause':
                 self.vlc.pause()
-            elif msg == 'stop':
+            elif msg == 'stop' and self.media == 'vlc':
                 self.vlc.stop()
-            elif msg == 'next':
+            elif msg == 'next' and self.media == 'vlc':
                 self.vlc.next()
-            elif msg == 'prev':
+            elif msg == 'prev' and self.media == 'vlc':
                 self.vlc.prev()
-            elif msg == 'fscreen':
+            elif msg == 'fscreen' and self.media == 'vlc':
                 self.vlc.set_fullscreen(True)
-            elif msg == 'rfscreen':
+            elif msg == 'rfscreen' and self.media == 'vlc':
                 self.vlc.set_fullscreen(False)
-            elif msg == 'rewind':
+            elif msg == 'rewind' and self.media == 'vlc':
                 self.vlc.rewind()
-            elif msg == 'volume':
+            elif msg == 'volume' and self.media == 'vlc':
                 return "Current volume is", self.vlc.volume()
-            elif msg == 'vup' or msg == 'volup':
+            elif (msg == 'vup' or msg == 'volup') and self.media == 'vlc':
                 return "Current volume is", self.vlc.volup(2)
-            elif msg == 'vdown' or msg == 'voldown':
+            elif (msg == 'vdown' or msg == 'voldown') and self.media == 'vlc':
                 return "Current volume is", self.vlc.voldown(2)
             elif msg == 'help':
                 s = ''' Commands:-
@@ -121,6 +134,7 @@ lyrics - lyrics for current song.
                     self.lyrics = q.get()
                     return self.lyrics
             else:
+                print "Invalid command ", msg
                 return "Invalid Command."
             return "Command executed successfully."
         except Exception as e:

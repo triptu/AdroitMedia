@@ -15,7 +15,7 @@ class ytubePlayer():
     def __init__(self):
         self.running = True
         self.song = ''
-        self.status = 'play'
+        self.status = 'random'
         try:
             self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.server.bind((TCP_IP, TCP_PORT))
@@ -45,6 +45,7 @@ class ytubePlayer():
             elif 'song=' in msg:
                 msg = msg.strip(' /').split('=')[1]
                 msg = msg.replace('%20', ' ')
+                msg = msg.replace('%22', '"')
                 self.song = msg.strip()
             elif 'getSong' in msg:
                 server_message = 'HTTP/1.1 200 OK\n\n%s' % self.get_current()
