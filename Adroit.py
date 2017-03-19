@@ -22,13 +22,23 @@ from kivymd.theming import ThemeManager
 from kivymd import snackbar as Snackbar
 from kivy.factory import Factory
 import requests
+import smartPlaylist
 from kivymd.toolbar import Toolbar
 from kivymd.selectioncontrols import MDSwitch
 from kivymd.navigationdrawer import NavigationDrawer
+from kivymd.selectioncontrols import MDCheckbox
+from kivymd.selectioncontrols import MDCheckbox
 from kivymd.textfields import MDTextField
 from youtube import ytubePlayer
 import logging
 
+
+SONG_LYRICS = False
+LYRICS_FLAG = False    # Will be true if SONG_LYRICS is turned to True
+SONG_PATH = ''
+AUTOPLAY = True
+TELE_TOKEN = ''
+autoplayTrueAtSomeTime  = False
 
 class HoverBehavior(object):
     """Hover behavior.
@@ -133,8 +143,8 @@ class Search(FloatLayout):
         self.user_input = MDTextField(multiline=False, font_size=23)
         self.user_input.hint_text = 'Song Name'
         self.add_widget(self.user_input)
-        self.user_input.size_hint = (0.55, 0.115)
-        self.user_input.pos_hint = {'x': .07, 'y': .47}
+        self.user_input.size_hint = (0.70, 0.115)
+        self.user_input.pos_hint = {'x': .090, 'y': .47}
         name = getName()
         print "Current ", name
         if name != '':
@@ -176,6 +186,7 @@ class LandingScreen(Screen):
         self.sub = False
         self.subname = ''
         self.telegram = False
+        self.showLyrics = SONG_LYRICS
 
     def controlSmartPause(self, value, root):
         if value == 0:                       # It is going to onpress of ImageButton class first
@@ -390,18 +401,20 @@ class LyricsScreen(Screen):
 
     def loadLyricshelper(self, song):
         q = Queue()
-        getLyrics(song, q)
+        getLyrics(song, q, SONG_LYRICS)
         self.lyrics = q.get()
         self.lyrics = self.lyrics.encode('utf-8')
         self.lyrics2.text = self.lyrics
         self.lyrics2.cursor = (0, 0)
 
     def loadLyrics(self, song):
-        if self.song == song and self.lyrics != 'Sorry, Lyrics not found.':
+        global LYRICS_FLAG
+        if (self.song == song and LYRICS_FLAG is False) and self.lyrics != 'Sorry, Lyrics not found.':
             return
         else:
+            LYRICS_FLAG = True
             self.song = song
-            self.lyrics2.text = "Loading Lyrics for " + song + " ..."
+            self.lyrics2.text = "Searching Lyrics for " + song + " ..."
             print "Loading Lyrics for " + song + " ..."
             threadl = Thread(target=self.loadLyricshelper, args=(song,))
             threadl.daemon = True
@@ -428,11 +441,97 @@ Designer:- Harshil Chaudhary
 BITS Pilani'''
 
 
-class Adroit2App(App):
+class SettingsScreen(Screen):
+
+    def __init__(self, *args, **kwargs):
+        super(SettingsScreen, self).__init__(*args, **kwargs)
+        self.teletoken = TELE_TOKEN
+        self.path = SONG_PATH
+        self.autoplay = AUTOPLAY
+        self.lyrics = SONG_LYRICS
+
+    def save(self, token, path, autop, lyrics):
+        token = token.strip()
+        path = path.strip()
+        global TELE_TOKEN, AUTOPLAY, SONG_PATH, SONG_LYRICS, LYRICS_FLAG, autoplayTrueAtSomeTime
+        if token != self.teletoken:
+            self.teletoken = token
+            TELE_TOKEN = token
+            with open('data/token.txt', 'w') as hand:
+                hand.write(self.teletoken)
+        if path != self.path:
+            self.path = path
+            SONG_PATH = path
+            autoPlayObj.stop
+            smartPlay = Thread(target=autoPlayObj.main)
+            smartPlay.daemon = True
+            smartPlay.start()
+            with open('data/songfolder.txt', 'w') as hand:
+                hand.write(self.path)
+
+        if lyrics != self.lyrics:
+            self.lyrics = lyrics
+            if SONG_LYRICS is False and lyrics is True:
+                LYRICS_FLAG = True
+            SONG_LYRICS = lyrics
+            with open('data/songlyrics.txt', 'w') as hand:
+                hand.write(str(self.lyrics))
+        if autop != self.autoplay:
+            self.autoplay = autop
+            AUTOPLAY = autop
+            if AUTOPLAY is True:
+                smartPlay = Thread(target=autoPlayObj.main)
+                smartPlay.daemon = True
+                smartPlay.start()
+            else:
+                autoPlayObj.stop()
+            with open('data/autoplay.txt', 'w') as hand:
+                hand.write(str(self.autoplay))
+
+
+class AdroitApp(App):
     theme_cls = ThemeManager()
     theme_cls.primary_palette = 'Red'
     # def build(self):
     #     Window.borderless = True
+
+
+def dataloader():
+    global TELE_TOKEN, AUTOPLAY, SONG_PATH, SONG_LYRICS
+    if not os.path.exists('data/token.txt'):
+        with open('data/token.txt', 'w') as hand:
+            hand.write('')
+    if not os.path.exists('data/songlyrics.txt'):
+        with open('data/songlyrics.txt', 'w') as hand:
+            hand.write('False')
+    if not os.path.exists('data/autoplay.txt'):
+        with open('data/autoplay.txt', 'w') as hand:
+            hand.write('True')
+    if not os.path.exists('data/songfolder.txt'):
+        with open('data/songfolder.txt', 'w') as hand:
+            hand.write('')
+    with open('data/token.txt') as hand:
+        for line in hand:
+            TELE_TOKEN = line.strip()
+            break
+    with open('data/songlyrics.txt') as hand:
+        for line in hand:
+            if line.strip().lower() == 'false':
+                SONG_LYRICS = False
+            else:
+                SONG_LYRICS = True
+            break
+    with open('data/autoplay.txt') as hand:
+        for line in hand:
+            if line.strip().lower() == 'false':
+                AUTOPLAY = False
+            else:
+                AUTOPLAY = True
+            break
+    with open('data/songfolder.txt') as hand:
+        for line in hand:
+            SONG_PATH = line.strip()
+            break
 
 
 if __name__ == '__main__':
@@ -442,7 +541,14 @@ if __name__ == '__main__':
     ytube = ytubePlayer()
     ythread = Thread(target=ytube.start)
     ythread.daemon = True
+    dataloader()
     ythread.start()
+    # Playlist Prediction
+    autoPlayObj = smartPlaylist.PlayPrediction()
+    if AUTOPLAY:
+        smartPlay = Thread(target=autoPlayObj.main)
+        smartPlay.daemon = True
+        smartPlay.start()
     # sys.stdout = logfile
-    Adroit2App().run()
+    AdroitApp().run()
     ytube.stop()

@@ -1,2 +1,5 @@
-if not(1==2):
-    print "asfs"
+import os
+
+path = 'data/token.txt'
+
+print os.path.splitext(path)[1][1:]

@@ -1,7 +1,3 @@
-#:import Toolbar kivymd.toolbar.Toolbar
-#:import MDSwitch kivymd.selectioncontrols.MDSwitch
-#:import Toolbar kivymd.toolbar.Toolbar
-#:import NavigationDrawer kivymd.navigationdrawer.NavigationDrawer
 
 ScreenManager:
     id: screen_manager
@@ -15,39 +11,14 @@ ScreenManager:
         manager: screen_manager
     HelpScreen:
         name: 'Help'
+    SettingsScreen:
+        name: 'Settings'
+        id: settings_screen
+        manager: screen_manager
 
 <CustLabel@Label>
     font_name: "data/fonts/Roboto-Medium.ttf"
     color: 0, 0, 0, 1
-
-<FlatTextInput>:
-
-    canvas.before:
-
-        # Background
-        Color:
-            rgba: self.background_color
-        Rectangle:
-            size: self.size
-            pos: self.pos
-
-        #Cursor
-        Color:
-            rgba: ( [0.4023,0.2265,0.7148,1] if self.focus else [ 0, 0, 0, 0 ] )
-        Rectangle:
-            pos: [int(x) for x in self.cursor_pos]
-            size: sp(2), -self.line_height
-
-        #Underline
-        Color:
-            rgba: [0.4023,0.2265,0.7148,1] if self.focus else [0.4023,0.2265,0.7148, .4 ]
-        Rectangle:
-            size: ( self.size[0]-3, 1 )
-            pos: self.pos[0], self.cursor_pos[1] - self.line_height - 3
-
-        #Set text color
-        Color:
-            rgba: 0,0,0,1
 
 <FlatTextInput2>:
 
@@ -105,17 +76,13 @@ ScreenManager:
 
         CustLabel:
             size: self.texture_size
-            text: "SMART PAUSE"
+            text: "Smart Pause"
             font_size: 15
             pos_hint:{'x':  0,'y':0.19}
         ImageButton:
             pos_hint: {'x': 0.4, 'y': .73}
             size_hint:(.2,.12)
             on_press: root.controlSmartPause(self.flag, root)
-        ImageButton2:
-            pos_hint: {'x': 0.65, 'y': .2}
-            size_hint:(.2,.12)
-            #on_press: root.controlSmartPause(self.flag, root)
 
 #        CustLabel:
 #            text:'CONTROLS'
@@ -161,43 +128,52 @@ ScreenManager:
             pos_hint:{'x':0.8,'y':0.55}
             size_hint: (0.05, 0.075)
         CustLabel:
-            text:'TELEGRAM'
+            text:'Telegram'
             pos_hint:{'x':0.325,'y':0.038}
-
-        MDRaisedButton:
-            text: "SUBTITLE"
-            on_press: root.downloadsub()
-            size_hint: (0.321, 0.075)
-            pos_hint:{'x':0.12,'y':0.1}
 
         Search:
             id: searchid
-            pos_hint: {'x':-0.15, 'y': -0.25}
-            size_hint: (0.7, 1)
+            pos_hint: {'x':0.075, 'y': -0.15}
 
         MDRaisedButton:
-            text: 'CURRENT'
+            text: 'Current'
             on_press:
                 root.search2.update()
             size_hint:(0.125,0.075)
-            pos_hint: {'x': .12, 'y': .22}
+            pos_hint: {'x': .35, 'y': .24}
 
 
         MDRaisedButton:
-            text: 'LYRICS'
+            text: 'Lyrics'
             on_press:
                 root.manager.current = 'Lyrics'
                 root.manager.transition.direction = 'left'
                 root.manager.ids.lyrics_screen.loadLyrics(root.search2.user_input.text)
             size_hint:(.125,.075)
-            pos_hint: {'x': .32, 'y': .22}
+            pos_hint: {'x': .55, 'y': .24}
+
+
         MDRaisedButton:
-            text: 'help'
+            text: 'About'
             size_hint:(.08,.08)
-            pos_hint: {'x': .9, 'y': .8}
+            pos_hint: {'x': .91, 'y': .82}
             on_press:
                 root.manager.current = 'Help'
                 root.manager.transition.direction = 'left'
+
+        MDRaisedButton:
+            text: "Subtitle"
+            on_press: root.downloadsub()
+            size_hint: (0.23, 0.072)
+            pos_hint:{'x':0.67,'y':0.05}
+
+        MDRaisedButton:
+            text: 'Settings'
+            size_hint: (0.23, 0.072)
+            pos_hint:{'x':0.13,'y':0.05}
+            on_press:
+                root.manager.current = 'Settings'
+                root.manager.transition.direction = 'right'
 
 
 <LyricsScreen>:
@@ -223,7 +199,6 @@ ScreenManager:
             text: "Lyrics"
             font_size: 20
             font_name: "data/fonts/Roboto-Regular.ttf"
-            hint_text: "Name of song."
             keyboard_mode: 'managed'
             readOnly: True
 
@@ -250,3 +225,66 @@ ScreenManager:
             readOnly: True
             text: root.help_text
             cursor: (0,0)
+
+
+<SettingsScreen>:
+    BoxLayout:
+        canvas.before:
+            Color:
+                rgba: .97, .97, .97, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        padding: 2
+        spacing: 8
+        orientation: 'vertical'
+        MDRaisedButton:
+            text: 'Home Screen'
+            size_hint:(1, 1)
+            on_press:
+                root.manager.transition.direction = 'left'
+                root.manager.current = 'landing'
+
+        CustLabel:
+            text: 'Telegram Token'
+        MDTextField:
+            id: tokenid
+            text: root.teletoken
+            size_hint_x: 0.8
+            hint_text: "Telegram Bot Token."
+            pos_hint: {'x': .090, 'y': .47}
+
+        CustLabel:
+            text: 'Song Folder'
+        MDTextField:
+            id:songpath
+            size_hint_x: 0.8
+            text: root.path
+            pos_hint: {'x': .090, 'y': .47}
+            hint_text: "This is where you keep your songs."
+
+        CustLabel:
+            text:'Lyrics In-Window (Not Recommended)'
+        MDCheckbox:
+            id:            lyricsid
+            size:        dp(48), dp(48)
+            size_hint:    None, None
+            pos_hint:    {'center_x': 0.5, 'center_y': 0.4}
+            active: True if root.lyrics else False
+
+        CustLabel:
+            text: 'Playlist Prediction '
+        MDCheckbox:
+            id:            autoplayid
+            size:        dp(48), dp(48)
+            size_hint:    None, None
+            pos_hint:    {'center_x': 0.5, 'center_y': 0.4}
+            active: True if root.autoplay else False
+        MDRaisedButton:
+            text: 'Save'
+            pos_hint: {'x':0.44}
+            on_press:
+                root.save(tokenid.text, songpath.text, autoplayid.active, lyricsid.active)
+                root.manager.transition.direction = 'left'
+                root.manager.current = 'landing'
+
