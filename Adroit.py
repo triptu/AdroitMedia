@@ -432,7 +432,7 @@ Doesn't it becomes a nuisance when you are doing something important and the pla
  is last in the playlist it adds a new song based on your past behaviour. Adroit becomes intellligent with time as it understands you better. Based on what kind of songs you listen based on day and time of\
  day it automatically tunes it recommendations. Don't like the song? Just skip it and Adroit will know.
 You can use the lyrics feature to instantly get the lyrics of whatever song you want saving you hassle of searching on the internet.
-You can also download the subtitle of movie or TV series episode you are playing.  And as the subtitles are retrieved with the help of the hash you can rest asure about its syncing.
+You can also download the subtitle (powered by www.OpenSubtitles.org of movie or TV series episode you are playing.  And as the subtitles are retrieved with the help of the hash you can rest asure about its syncing.
 Not only this you can also turn on the Telegram feature of Adroit and use the telegram messenger in your mobile to control your media remotely by just chatting with Adroit.\
  You can also send lyrics to the bot to get the lyrics of whatever song is being played locally or on youtube.
 Never thought it would be this simple, right?
@@ -535,8 +535,7 @@ def dataloader():
 
 
 if __name__ == '__main__':
-    logfile = open('logger.log', 'w')
-    logfile.close()
+    sys.stdout = open('logger.log', 'w')
     logging.basicConfig(filename='logger.log', level=logging.DEBUG)
     ytube = ytubePlayer()
     ythread = Thread(target=ytube.start)
@@ -549,6 +548,5 @@ if __name__ == '__main__':
         smartPlay = Thread(target=autoPlayObj.main)
         smartPlay.daemon = True
         smartPlay.start()
-    # sys.stdout = logfile
     AdroitApp().run()
     ytube.stop()

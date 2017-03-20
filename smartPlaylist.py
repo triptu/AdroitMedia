@@ -105,11 +105,11 @@ def smartPlaylist():
                             print "Updating for", prev_song, "with offset", 1
                             updated = True
                 else:
-                    prev_song = curr_song
                     if updated is False:
                         if elapsed < 0.5 * totlen:
                             update(-0.5, prevfullpath)
                             print "Updating for", prev_song, "with offset", -0.5
+                    prev_song = curr_song
                     prevfullpath = getNamePath()
                     updated = False
                 if vlc.get_title() in vlc.playlist().split('\n')[-3]:
