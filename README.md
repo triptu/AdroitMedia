@@ -1,4 +1,7 @@
-# CodeFunDo
+# AdroitMedia
+
+Made as part of Microsoft Code Fun Do
+
 Make media player and VLC smart
 
 See [this page](https://adroitweb.github.io/) for list of features and download link.
